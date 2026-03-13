@@ -5,19 +5,19 @@ on:
       repo:
         description: 'Repository to use for the build'
         type: string
-        default: 'godotengine/godot'
+        default: 'calfur/godot'
       base-branch:
         description: 'Base branch to use for the builds'
         type: string
-        default: '4.6'
+        default: 'directional-light-projector-4.6.1'
       tag:
         description: 'tag to use for downloading the repo'
         type: string
-        default: '4.6.1-stable'
+        default: '4.6.1-stable-directional-light-projector'
       tag_release:
         description: 'tag to use for releasing the build'
         type: string
-        default: '4.6.1.stable'
+        default: '4.6.1-stable-directional-light-projector'
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
         type: string
@@ -29,7 +29,7 @@ on:
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
         type: choice
-        default: "lto=thin"
+        default: "lto=full"
         options:
           - "lto=none"
           - "lto=thin"
