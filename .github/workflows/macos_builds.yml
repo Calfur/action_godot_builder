@@ -26,6 +26,7 @@ env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
+  LTO_FLAG: ${{ inputs.lto != 'none' && inputs.lto || '' }}
   SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes debug_symbols=no use_static_cpp=yes
 
 jobs:
@@ -111,7 +112,7 @@ jobs:
         if: matrix.build-mono
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ inputs.lto }} ${{ inputs.module_flags }} module_mono_enabled=yes mono_glue=no
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ env.LTO_FLAG }} ${{ inputs.module_flags }} module_mono_enabled=yes mono_glue=no
           platform: macos
           target: editor
 
@@ -123,7 +124,7 @@ jobs:
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ inputs.lto }} ${{ inputs.module_flags }} ${{ matrix.scons-mono-flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ env.LTO_FLAG }} ${{ inputs.module_flags }} ${{ matrix.scons-mono-flags }}
           platform: macos
           target: ${{ matrix.target }}
 
@@ -131,7 +132,7 @@ jobs:
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} ${{ inputs.module_flags }} ${{ matrix.scons-mono-flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ env.LTO_FLAG }} ${{ inputs.module_flags }} ${{ matrix.scons-mono-flags }}
           platform: macos
           target: ${{ matrix.target }}
 
@@ -139,7 +140,7 @@ jobs:
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.scons-mono-flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ env.LTO_FLAG }} ${{ inputs.template_module_flags }} ${{ matrix.scons-mono-flags }}
           platform: macos
           target: ${{ matrix.target }}
 
@@ -147,7 +148,7 @@ jobs:
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.scons-mono-flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ env.LTO_FLAG }} ${{ inputs.template_module_flags }} ${{ matrix.scons-mono-flags }}
           platform: macos
           target: ${{ matrix.target }}
 
