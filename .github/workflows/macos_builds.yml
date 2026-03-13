@@ -68,17 +68,17 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.tag }}
           submodules: recursive
-      
+
       - name: Select Xcode 16
         run: sudo xcode-select -s /Applications/Xcode_16.2.app
-      
+
       - name: Checkout script repo for install_vulkan_sdk_macos.sh
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: appsinacup/action_godot_builder
           path: misc/scripts
@@ -99,7 +99,7 @@ jobs:
 
       - name: Setup .NET SDK
         if: matrix.build-mono
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '6.0.x'
 
@@ -174,7 +174,7 @@ jobs:
           chmod +x bin/godot.*
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: macos-${{ matrix.target }}${{ matrix.scons-mono-flags }}-${{ inputs.lto }}
           path: bin
