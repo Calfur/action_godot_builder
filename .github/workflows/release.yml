@@ -229,6 +229,7 @@ jobs:
           # Linux x86_64
           mkdir -p Godot_v${VERSION}_mono_linux_x86_64
           cp Godot_v${VERSION}_mono_linux.x86_64 Godot_v${VERSION}_mono_linux_x86_64/
+          chmod +x Godot_v${VERSION}_mono_linux_x86_64/Godot_v${VERSION}_mono_linux.x86_64
           cp -R GodotSharp Godot_v${VERSION}_mono_linux_x86_64/
           zip -q -9 -r ../release/Godot_v${VERSION}_mono_linux_x86_64.zip Godot_v${VERSION}_mono_linux_x86_64
 
@@ -239,6 +240,7 @@ jobs:
           cp bin/godot.windows.template_release.x86_64.mono.console.exe "release/templates/windows_release_x86_64_console.exe"
           cp bin/macos_mono.zip "release/templates/macos.zip"
           cp bin/godot.linuxbsd.template_release.x86_64.mono "release/templates/linux_release_x86_64"
+          chmod +x release/templates/linux_release_x86_64
           printf "%s" "${VERSION_CLEAN}" > release/templates/version.txt
 
           ls -R release/templates
