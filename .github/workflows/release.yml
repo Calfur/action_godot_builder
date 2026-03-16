@@ -205,7 +205,6 @@ jobs:
           mv bin/godot.windows.editor.x86_64.mono.exe bin/Godot_v${VERSION}_mono_win64.exe
           mv bin/godot.windows.editor.arm64.mono.exe bin/Godot_v${VERSION}_mono_windows_arm64.exe
           mv bin/godot.linuxbsd.editor.x86_64.mono bin/Godot_v${VERSION}_mono_linux.x86_64
-          mv bin/godot.linuxbsd.editor.arm64.mono bin/Godot_v${VERSION}_mono_linux.arm64
 
           echo "Editors renamed to:"
           ls bin
@@ -233,12 +232,6 @@ jobs:
           cp -R GodotSharp Godot_v${VERSION}_mono_linux_x86_64/
           zip -q -9 -r ../release/Godot_v${VERSION}_mono_linux_x86_64.zip Godot_v${VERSION}_mono_linux_x86_64
 
-          # Linux arm64
-          mkdir -p Godot_v${VERSION}_mono_linux_arm64
-          cp Godot_v${VERSION}_mono_linux.arm64 Godot_v${VERSION}_mono_linux_arm64/
-          cp -R GodotSharp Godot_v${VERSION}_mono_linux_arm64/
-          zip -q -9 -r ../release/Godot_v${VERSION}_mono_linux_arm64.zip Godot_v${VERSION}_mono_linux_arm64
-
           cd ..
 
           # Templates (Mono only)
@@ -246,7 +239,6 @@ jobs:
           cp bin/godot.windows.template_release.x86_64.mono.console.exe "release/templates/windows_release_x86_64_console.exe"
           cp bin/macos_mono.zip "release/templates/macos.zip"
           cp bin/godot.linuxbsd.template_release.x86_64.mono "release/templates/linux_release_x86_64"
-          cp bin/godot.linuxbsd.template_release.arm64.mono "release/templates/linux_release_arm64"
           printf "%s" "${VERSION_CLEAN}" > release/templates/version.txt
 
           ls -R release/templates
@@ -275,5 +267,4 @@ jobs:
             release/Godot_v${{ inputs.tag_release }}_mono_windows_arm64.zip
             release/Godot_v${{ inputs.tag_release }}_mono_macos.universal.zip
             release/Godot_v${{ inputs.tag_release }}_mono_linux_x86_64.zip
-            release/Godot_v${{ inputs.tag_release }}_mono_linux_arm64.zip
             release/Godot_v${{ inputs.tag_release }}_mono_export_templates.tpz
