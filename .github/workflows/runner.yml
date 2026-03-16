@@ -58,16 +58,16 @@ jobs:
 #      template_module_flags: ${{ inputs.template_module_flags }}
 #    secrets: inherit
 #
-#  linux-build:
-#    name: 🐧 Linux
-#    uses: ./.github/workflows/linux_builds.yml
-#    with:
-#      repo: ${{ inputs.repo }}
-#      tag: ${{ inputs.tag }}
-#      lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
-#      module_flags: ${{ inputs.module_flags }}
-#      template_module_flags: ${{ inputs.template_module_flags }}
-#    secrets: inherit
+  linux-build:
+    name: 🐧 Linux
+    uses: ./.github/workflows/linux_builds.yml
+    with:
+      repo: ${{ inputs.repo }}
+      tag: ${{ inputs.tag }}
+      lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
+      module_flags: ${{ inputs.module_flags }}
+      template_module_flags: ${{ inputs.template_module_flags }}
+    secrets: inherit
 
   macos-build:
     name: 🍎 macOS Mono
@@ -111,7 +111,7 @@ jobs:
     needs:
 #      - android-build
 #      - ios-build
-#      - linux-build
+      - linux-build
       - macos-build
       - windows-build
 #      - web-build
