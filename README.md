@@ -35,6 +35,6 @@ From here, you download the editor if you need it, if not you just download the 
 
 ## How the actions were created
 
-The build actions are based on the actions from the (godotengine repo)[https://github.com/godotengine/godot/tree/master/.github/workflows].
+The build actions are based on the actions from the [godot repo](https://github.com/godotengine/godot/tree/master/.github/workflows).
 
-The release action is meant to take the artifacts and replicate the asset creation of the (godotengine releases)[https://github.com/godotengine/godot/releases/].
+The release action is meant to take the artifacts and replicate the asset creation of the [godot repo releases](https://github.com/godotengine/godot/releases/).
