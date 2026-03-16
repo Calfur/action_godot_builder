@@ -218,12 +218,9 @@ jobs:
           cd ..
 
           # Templates (Mono only)
-          cp bin/godot.windows.template_debug.x86_64.mono.exe "release/templates_mono/windows_debug_x86_64.exe"
           cp bin/godot.windows.template_release.x86_64.mono.exe "release/templates_mono/windows_release_x86_64.exe"
-          cp bin/godot.windows.template_debug.x86_64.mono.console.exe "release/templates_mono/windows_debug_x86_64_console.exe"
           cp bin/godot.windows.template_release.x86_64.mono.console.exe "release/templates_mono/windows_release_x86_64_console.exe"
           cp bin/macos_mono.zip "release/templates_mono/macos.zip"
-          cp bin/godot.linuxbsd.template_debug.x86_64.mono "release/templates_mono/linux_debug_x86_64"
           cp bin/godot.linuxbsd.template_release.x86_64.mono "release/templates_mono/linux_release_x86_64"
           rm -rf release/templates_mono/GodotSharp
           cp -R bin/GodotSharp release/templates_mono/GodotSharp

@@ -26,7 +26,7 @@ env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
-  SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes linker=lld
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   TSAN_OPTIONS: suppressions=misc/error_suppressions/tsan.txt
@@ -41,28 +41,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Editor (target=editor arch=x86_64)
-            target: editor
-            scons-flags: arch=x86_64
-            scons-mono-flags: ''
-            build-mono: false
+          #- name: Editor (target=editor arch=x86_64)
+          #  target: editor
+          #  scons-flags: arch=x86_64
+          #  scons-mono-flags: ''
+          #  build-mono: false
           
-          # TODO re-enable these
           #- name: Editor (target=editor arch=x86_32)
           #  target: editor
           #  scons-flags: arch=x86_32
 
-          - name: Template (target=template_release, arch=x86_64)
-            target: template_release
-            scons-flags: arch=x86_64
-            scons-mono-flags: ''
-            build-mono: false
+          #- name: Template (target=template_release, arch=x86_64)
+          #  target: template_release
+          #  scons-flags: arch=x86_64
+          #  scons-mono-flags: ''
+          #  build-mono: false
           
-          - name: Template (target=template_debug, arch=x86_64)
-            target: template_debug
-            scons-flags: arch=x86_64
-            scons-mono-flags: ''
-            build-mono: false
+          #- name: Template (target=template_debug, arch=x86_64)
+          #  target: template_debug
+          #  scons-flags: arch=x86_64
+          #  scons-mono-flags: ''
+          #  build-mono: false
 
           - name: Editor Mono (target=editor arch=x86_64)
             target: editor
@@ -72,12 +71,6 @@ jobs:
 
           - name: Template Mono (target=template_release arch=x86_64)
             target: template_release
-            scons-flags: arch=x86_64
-            scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
-            build-mono: true
-
-          - name: Template Mono (target=template_debug arch=x86_64)
-            target: template_debug
             scons-flags: arch=x86_64
             scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
             build-mono: true
