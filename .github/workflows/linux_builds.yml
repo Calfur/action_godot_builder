@@ -68,14 +68,12 @@ jobs:
             scons-flags: arch=x86_64
             scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
             build-mono: true
-            bin: ./bin/godot.linuxbsd.editor.x86_64.mono
 
           - name: Template Mono (target=template_release arch=x86_64)
             target: template_release
             scons-flags: arch=x86_64
             scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
             build-mono: true
-            bin: ./bin/godot.linuxbsd.template_release.x86_64.mono
 
     steps:
       - name: Checkout
@@ -145,14 +143,14 @@ jobs:
         if: matrix.build-mono
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }} mono_glue=no
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }} module_mono_enabled=yes mono_glue=no
           platform: linuxbsd
           target: editor
 
       - name: Generate C# glue
         if: matrix.build-mono
         run: |
-          ${{ matrix.bin }} --headless --generate-mono-glue ./modules/mono/glue
+          ./bin/godot.linuxbsd.editor.x86_64.mono --headless --generate-mono-glue ./modules/mono/glue
 
       - name: Compilation (Editor)
         if: matrix.target == 'editor'
