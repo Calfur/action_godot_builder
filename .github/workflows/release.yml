@@ -247,9 +247,6 @@ jobs:
           cp bin/macos_mono.zip "release/templates/macos.zip"
           cp bin/godot.linuxbsd.template_release.x86_64.mono "release/templates/linux_release_x86_64"
           cp bin/godot.linuxbsd.template_release.arm64.mono "release/templates/linux_release_arm64"
-          rm -rf release/templates/GodotSharp
-          cp -R bin/GodotSharp release/templates/GodotSharp
-
           printf "%s" "${VERSION_CLEAN}" > release/templates/version.txt
 
           ls -R release/templates
