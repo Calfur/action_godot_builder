@@ -73,11 +73,11 @@ jobs:
       - name: Select Xcode 26
         run: sudo xcode-select -s /Applications/Xcode_26.0.1.app
 
-      - name: Checkout script repo for install_vulkan_sdk_macos.sh
+      - name: Checkout builder scripts (Vulkan, purge_cache, etc.)
         uses: actions/checkout@v6
         with:
           repository: appsinacup/action_godot_builder
-          path: misc/scripts
+          path: builder_repo
 
       - name: Download pre-built AccessKit
         uses: dsaltares/fetch-gh-release-asset@1.1.2
@@ -112,7 +112,7 @@ jobs:
 
       - name: Setup Vulkan SDK
         run: |
-          sh misc/scripts/install_vulkan_sdk_macos.sh
+          sh builder_repo/install_vulkan_sdk_macos.sh
 
       - name: Mono tools build (pre-glue)
         if: matrix.build-mono
@@ -162,6 +162,7 @@ jobs:
         uses: ./.github/actions/godot-cache-save
         with:
           cache-name: macos-${{ matrix.target }}-${{ matrix.scons-mono-flags }}-${{ inputs.lto }}
+          purge-cache-script: builder_repo/misc/scripts/purge_cache.py
         continue-on-error: true
 
       - name: Build .NET solutions
