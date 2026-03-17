@@ -175,12 +175,12 @@ jobs:
             echo "Mono macOS template binaries not found, skipping."
             exit 0
           fi
-          cp -r misc/dist/macos_template.app ./bin/macos_template_mono.app
-          mkdir -p bin/macos_template_mono.app/Contents/MacOS
-          cp bin/godot.macos.template_release.mono.universal bin/macos_template_mono.app/Contents/MacOS/godot_macos_release.universal
-          cp bin/godot.macos.template_debug.mono.universal bin/macos_template_mono.app/Contents/MacOS/godot_macos_debug.universal
-          chmod +x bin/macos_template_mono.app/Contents/MacOS/godot_macos*
-          cd bin && zip -q -9 -r macos_mono.zip macos_template_mono.app && cd ..
+          cp -r misc/dist/macos_template.app ./bin/macos_template.app
+          mkdir -p bin/macos_template.app/Contents/MacOS
+          cp bin/godot.macos.template_release.mono.universal bin/macos_template.app/Contents/MacOS/godot_macos_release.universal
+          cp bin/godot.macos.template_debug.mono.universal bin/macos_template.app/Contents/MacOS/godot_macos_debug.universal
+          chmod +x bin/macos_template.app/Contents/MacOS/godot_macos*
+          cd bin && zip -q -9 -r macos_mono.zip macos_template.app && cd ..
 
       # - name: Assemble Android sources (debug + release) into one zip
       #   run: |
