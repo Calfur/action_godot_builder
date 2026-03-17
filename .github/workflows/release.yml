@@ -178,6 +178,7 @@ jobs:
           cp -r misc/dist/macos_template.app ./bin/macos_template_mono.app
           mkdir -p bin/macos_template_mono.app/Contents/MacOS
           cp bin/godot.macos.template_release.mono.universal bin/macos_template_mono.app/Contents/MacOS/godot_macos_release.universal
+          cp bin/godot.macos.template_debug.mono.universal bin/macos_template_mono.app/Contents/MacOS/godot_macos_debug.universal
           chmod +x bin/macos_template_mono.app/Contents/MacOS/godot_macos*
           cd bin && zip -q -9 -r macos_mono.zip macos_template_mono.app && cd ..
 
@@ -249,9 +250,12 @@ jobs:
           # Templates (Mono only)
           cp bin/godot.windows.template_release.x86_64.mono.exe "release/templates/windows_release_x86_64.exe"
           cp bin/godot.windows.template_release.x86_64.mono.console.exe "release/templates/windows_release_x86_64_console.exe"
+          cp bin/godot.windows.template_debug.x86_64.mono.exe "release/templates/windows_debug_x86_64.exe"
+          cp bin/godot.windows.template_debug.x86_64.mono.console.exe "release/templates/windows_debug_x86_64_console.exe"
           cp bin/macos_mono.zip "release/templates/macos.zip"
-          cp bin/godot.linuxbsd.template_release.x86_64.mono "release/templates/linux_release_x86_64"
-          chmod +x release/templates/linux_release_x86_64
+          cp bin/godot.linuxbsd.template_release.x86_64.mono "release/templates/linux_release.x86_64"
+          cp bin/godot.linuxbsd.template_debug.x86_64.mono "release/templates/linux_debug.x86_64"
+          chmod +x release/templates/linux_release.x86_64 release/templates/linux_debug.x86_64
           printf "%s" "${TEMPLATE_VERSION}" > release/templates/version.txt
 
           ls -R release/templates

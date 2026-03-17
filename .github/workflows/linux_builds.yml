@@ -77,6 +77,12 @@ jobs:
             scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
             build-mono: true
 
+          - name: Template Mono Debug (target=template_debug arch=x86_64)
+            target: template_debug
+            arch: x86_64
+            scons-flags: arch=x86_64
+            scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+            build-mono: true
 
     steps:
       - name: Checkout

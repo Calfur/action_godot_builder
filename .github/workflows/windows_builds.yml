@@ -99,6 +99,12 @@ jobs:
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
+          - name: Template Mono Debug (target=template_debug, arch=x86_64)
+            target: template_debug
+            scons-flags: arch=x86_64
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+
           - name: Editor Mono (target=editor, arch=arm64)
             target: editor
             scons-flags: arch=arm64
