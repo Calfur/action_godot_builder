@@ -17,7 +17,7 @@ runs:
   steps:
     - name: Purge files before timestamp
       shell: sh
-      run: ${{ inputs.purge-cache-script }} ${{ env.CACHE_TIMESTAMP }} "${{ inputs.scons-cache }}"
+      run: python3 ${{ inputs.purge-cache-script }} ${{ env.CACHE_TIMESTAMP }} "${{ inputs.scons-cache }}"
 
     - name: Save SCons cache directory
       uses: actions/cache/save@v5

@@ -61,7 +61,7 @@ jobs:
             build-mono: true
             scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
-          - name: Template Mono Debug (target=template_debug)
+          - name: Template Mono (target=template_debug)
             target: template_debug
             build-mono: true
             scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes

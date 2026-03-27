@@ -29,7 +29,7 @@ on:
       release_repo:
         description: 'Repository to use for the release (leave empty for current repo)'
         type: string
-        default: ''
+        default: 'calfur/godot'
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
         type: choice

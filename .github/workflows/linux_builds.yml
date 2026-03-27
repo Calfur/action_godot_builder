@@ -47,6 +47,7 @@ jobs:
             scons-mono-flags: ''
             build-mono: false
           
+          # TODO re-enable these
           #- name: Editor (target=editor arch=x86_32)
           #  target: editor
           #  scons-flags: arch=x86_32
@@ -65,21 +66,18 @@ jobs:
 
           - name: Editor Mono (target=editor arch=x86_64)
             target: editor
-            arch: x86_64
             scons-flags: arch=x86_64
             scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
             build-mono: true
 
           - name: Template Mono (target=template_release arch=x86_64)
             target: template_release
-            arch: x86_64
             scons-flags: arch=x86_64
             scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
             build-mono: true
 
-          - name: Template Mono Debug (target=template_debug arch=x86_64)
+          - name: Template Mono (target=template_debug arch=x86_64)
             target: template_debug
-            arch: x86_64
             scons-flags: arch=x86_64
             scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
             build-mono: true
@@ -161,8 +159,7 @@ jobs:
       - name: Generate C# glue
         if: matrix.build-mono
         run: |
-          ARCH="${{ matrix.arch }}"
-          ./bin/godot.linuxbsd.editor.${ARCH}.mono --headless --generate-mono-glue ./modules/mono/glue
+          ./bin/godot.linuxbsd.editor.x86_64.mono --headless --generate-mono-glue ./modules/mono/glue
 
       - name: Compilation (Editor)
         if: matrix.target == 'editor'
