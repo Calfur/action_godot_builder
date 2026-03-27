@@ -40,9 +40,9 @@ jobs:
             build-mono: false
             scons-mono-flags: ''
 
-#          - name: Template Mono
-#            build-mono: true
-#            scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+          - name: Template Mono
+            build-mono: true
+            scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
     steps:
       - name: Checkout
@@ -51,6 +51,13 @@ jobs:
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.tag }}
           submodules: recursive
+
+      - name: Checkout builder scripts (Vulkan SDK)
+        uses: actions/checkout@v6
+        with:
+          repository: appsinacup/action_godot_builder
+          path: builder_repo
+          fetch-depth: 1
 
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
@@ -74,7 +81,7 @@ jobs:
 
       - name: Setup Vulkan SDK
         run: |
-          sh misc/scripts/install_vulkan_sdk_macos.sh
+          sh builder_repo/install_vulkan_sdk_macos.sh
 
       - name: Mono tools build (pre-glue)
         if: matrix.build-mono
@@ -106,6 +113,7 @@ jobs:
         uses: ./.github/actions/godot-cache-save
         with:
           cache-name: ios-${{ matrix.scons-mono-flags }}-${{ inputs.lto }}
+          purge-cache-script: builder_repo/misc/scripts/purge_cache.py
         continue-on-error: true
 
       - name: Build .NET solutions
@@ -113,6 +121,11 @@ jobs:
         run: |
           dotnet --info
           ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=ios --werror
+
+      - name: Rename iOS export zip for Mono (avoid artifact merge collision)
+        if: matrix.build-mono
+        run: |
+          if [ -f bin/godot_ios.zip ]; then mv bin/godot_ios.zip bin/godot_ios_mono.zip; fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7

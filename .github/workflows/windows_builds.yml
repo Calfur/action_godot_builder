@@ -6,7 +6,7 @@ on:
         description: 'Base branch to use for the builds'
         type: string
       lto:
-        description: 'LTO mode. Options: "none", "full"'
+        description: 'LTO mode. Options: "none", "thin", "full"'
         type: string
       repo:
         description: 'Repository to use for the build'
@@ -208,10 +208,18 @@ jobs:
           platform: windows
           target: ${{ matrix.target }}
 
+      - name: Checkout builder repo (cache purge script)
+        uses: actions/checkout@v6
+        with:
+          repository: appsinacup/action_godot_builder
+          path: builder_repo
+          fetch-depth: 1
+
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
           cache-name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
+          purge-cache-script: builder_repo/misc/scripts/purge_cache.py
         continue-on-error: true
 
       - name: Build .NET solutions
