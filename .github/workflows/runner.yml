@@ -36,28 +36,28 @@ on:
           - "lto=full"
 
 jobs:
-#  android-build:
-#    name: 🤖 Android
-#    uses: ./.github/workflows/android_builds.yml
-#    with:
-#      repo: ${{ inputs.repo }}
-#      tag: ${{ inputs.tag }}
-#      lto: ${{ inputs.lto }}
-#      module_flags: ${{ inputs.module_flags }}
-#      template_module_flags: ${{ inputs.template_module_flags }}
-#    secrets: inherit
-#
-#  ios-build:
-#    name: 🍏 iOS
-#    uses: ./.github/workflows/ios_builds.yml
-#    with:
-#      repo: ${{ inputs.repo }}
-#      tag: ${{ inputs.tag }}
-#      lto: ${{ inputs.lto }}
-#      module_flags: ${{ inputs.module_flags }}
-#      template_module_flags: ${{ inputs.template_module_flags }}
-#    secrets: inherit
-#
+  android-build:
+    name: 🤖 Android
+    uses: ./.github/workflows/android_builds.yml
+    with:
+      repo: ${{ inputs.repo }}
+      tag: ${{ inputs.tag }}
+      lto: ${{ inputs.lto }}
+      module_flags: ${{ inputs.module_flags }}
+      template_module_flags: ${{ inputs.template_module_flags }}
+    secrets: inherit
+
+  ios-build:
+    name: 🍏 iOS
+    uses: ./.github/workflows/ios_builds.yml
+    with:
+      repo: ${{ inputs.repo }}
+      tag: ${{ inputs.tag }}
+      lto: ${{ inputs.lto }}
+      module_flags: ${{ inputs.module_flags }}
+      template_module_flags: ${{ inputs.template_module_flags }}
+    secrets: inherit
+
   linux-build:
     name: 🐧 Linux
     uses: ./.github/workflows/linux_builds.yml
@@ -91,16 +91,16 @@ jobs:
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets: inherit
 
-#  web-build:
-#    name: 🌐 Web
-#    uses: ./.github/workflows/web_builds.yml
-#    with:
-#      repo: ${{ inputs.repo }}
-#      tag: ${{ inputs.tag }}
-#      lto: ${{ inputs.lto }}
-#      module_flags: ${{ inputs.module_flags }}
-#      template_module_flags: ${{ inputs.template_module_flags }}
-#    secrets: inherit
+  web-build:
+    name: 🌐 Web
+    uses: ./.github/workflows/web_builds.yml
+    with:
+      repo: ${{ inputs.repo }}
+      tag: ${{ inputs.tag }}
+      lto: ${{ inputs.lto }}
+      module_flags: ${{ inputs.module_flags }}
+      template_module_flags: ${{ inputs.template_module_flags }}
+    secrets: inherit
 
   release:
     name: 🚀 Create Release
@@ -109,12 +109,12 @@ jobs:
       actions: read
       packages: write
     needs:
-#      - android-build
-#      - ios-build
+      - android-build
+      - ios-build
       - linux-build
       - macos-build
       - windows-build
-#      - web-build
+      - web-build
     uses: ./.github/workflows/release.yml
     with:
       base-branch: ${{ inputs.base-branch }}

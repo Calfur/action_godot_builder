@@ -39,53 +39,53 @@ jobs:
       fail-fast: false
       matrix:
         include:
-#          - name: Editor (target=editor, arch=x86_64)
-#            target: editor
-#            scons-flags: arch=x86_64
-#            build-mono: false
-#            mono-flags: ''
-#
-#          - name: Editor (target=editor, arch=arm64)
-#            target: editor
-#            scons-flags: arch=arm64
-#            build-mono: false
-#            mono-flags: ''
-#
-#          - name: Template (target=template_release, arch=x86_64)
-#            target: template_release
-#            scons-flags: arch=x86_64
-#            build-mono: false
-#            mono-flags: ''
-#
-#          - name: Template (target=template_release, arch=x86)
-#            target: template_release
-#            scons-flags: arch=x86
-#            build-mono: false
-#            mono-flags: ''
-#
-#          - name: Template (target=template_release, arch=arm64)
-#            target: template_release
-#            scons-flags: arch=arm64
-#            build-mono: false
-#            mono-flags: ''
-#
-#          - name: Template (target=template_debug, arch=x86_64)
-#            target: template_debug
-#            scons-flags: arch=x86_64
-#            build-mono: false
-#            mono-flags: ''
-#
-#          - name: Template (target=template_debug, arch=x86)
-#            target: template_debug
-#            scons-flags: arch=x86
-#            build-mono: false
-#            mono-flags: ''
-#
-#          - name: Template (target=template_debug, arch=arm64)
-#            target: template_debug
-#            scons-flags: arch=arm64
-#            build-mono: false
-#            mono-flags: ''
+          - name: Editor (target=editor, arch=x86_64)
+            target: editor
+            scons-flags: arch=x86_64
+            build-mono: false
+            mono-flags: ''
+
+          - name: Editor (target=editor, arch=arm64)
+            target: editor
+            scons-flags: arch=arm64
+            build-mono: false
+            mono-flags: ''
+
+          - name: Template (target=template_release, arch=x86_64)
+            target: template_release
+            scons-flags: arch=x86_64
+            build-mono: false
+            mono-flags: ''
+
+          - name: Template (target=template_release, arch=x86)
+            target: template_release
+            scons-flags: arch=x86
+            build-mono: false
+            mono-flags: ''
+
+          - name: Template (target=template_release, arch=arm64)
+            target: template_release
+            scons-flags: arch=arm64
+            build-mono: false
+            mono-flags: ''
+
+          - name: Template (target=template_debug, arch=x86_64)
+            target: template_debug
+            scons-flags: arch=x86_64
+            build-mono: false
+            mono-flags: ''
+
+          - name: Template (target=template_debug, arch=x86)
+            target: template_debug
+            scons-flags: arch=x86
+            build-mono: false
+            mono-flags: ''
+
+          - name: Template (target=template_debug, arch=arm64)
+            target: template_debug
+            scons-flags: arch=arm64
+            build-mono: false
+            mono-flags: ''
 
           - name: Editor Mono (target=editor, arch=x86_64)
             target: editor

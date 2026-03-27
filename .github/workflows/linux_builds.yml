@@ -41,27 +41,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- name: Editor (target=editor arch=x86_64)
-          #  target: editor
-          #  scons-flags: arch=x86_64
-          #  scons-mono-flags: ''
-          #  build-mono: false
+          - name: Editor (target=editor arch=x86_64)
+            target: editor
+            scons-flags: arch=x86_64
+            scons-mono-flags: ''
+            build-mono: false
           
           #- name: Editor (target=editor arch=x86_32)
           #  target: editor
           #  scons-flags: arch=x86_32
 
-          #- name: Template (target=template_release, arch=x86_64)
-          #  target: template_release
-          #  scons-flags: arch=x86_64
-          #  scons-mono-flags: ''
-          #  build-mono: false
+          - name: Template (target=template_release, arch=x86_64)
+            target: template_release
+            scons-flags: arch=x86_64
+            scons-mono-flags: ''
+            build-mono: false
           
-          #- name: Template (target=template_debug, arch=x86_64)
-          #  target: template_debug
-          #  scons-flags: arch=x86_64
-          #  scons-mono-flags: ''
-          #  build-mono: false
+          - name: Template (target=template_debug, arch=x86_64)
+            target: template_debug
+            scons-flags: arch=x86_64
+            scons-mono-flags: ''
+            build-mono: false
 
           - name: Editor Mono (target=editor arch=x86_64)
             target: editor
