@@ -70,7 +70,7 @@ jobs:
     secrets: inherit
 
   macos-build:
-    name: 🍎 macOS Mono
+    name: 🍎 macOS
     uses: ./.github/workflows/macos_builds.yml
     with:
       repo: ${{ inputs.repo }}
@@ -81,7 +81,7 @@ jobs:
     secrets: inherit
 
   windows-build:
-    name: 🏁 Windows Mono
+    name: 🏁 Windows
     uses: ./.github/workflows/windows_builds.yml
     with:
       repo: ${{ inputs.repo }}
