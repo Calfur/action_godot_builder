@@ -117,6 +117,12 @@ jobs:
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
+          - name: Template Mono (target=template_debug, arch=arm64)
+            target: template_debug
+            scons-flags: arch=arm64
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -138,6 +144,7 @@ jobs:
         run: python ./misc/scripts/install_d3d12_sdk_windows.py
 
       - name: Download pre-built ANGLE static libraries (x86_64)
+        if: matrix.scons-flags == 'arch=x86_64'
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-angle-static
@@ -146,9 +153,24 @@ jobs:
           target: angle/angle_x86_64.zip
 
       - name: Extract pre-built ANGLE static libraries (x86_64)
+        if: matrix.scons-flags == 'arch=x86_64'
         run: Expand-Archive -Force angle/angle_x86_64.zip ${{ github.workspace }}/
 
+      - name: Download pre-built ANGLE static libraries (x86_32)
+        if: matrix.scons-flags == 'arch=x86'
+        uses: dsaltares/fetch-gh-release-asset@1.1.2
+        with:
+          repo: godotengine/godot-angle-static
+          version: tags/chromium/6601.2
+          file: godot-angle-static-x86_32-msvc-release.zip
+          target: angle/angle_x86_32.zip
+
+      - name: Extract pre-built ANGLE static libraries (x86_32)
+        if: matrix.scons-flags == 'arch=x86'
+        run: Expand-Archive -Force angle/angle_x86_32.zip ${{ github.workspace }}/
+
       - name: Download pre-built ANGLE static libraries (arm64)
+        if: matrix.scons-flags == 'arch=arm64'
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-angle-static
@@ -157,6 +179,7 @@ jobs:
           target: angle/angle_arm64.zip
 
       - name: Extract pre-built ANGLE static libraries (arm64)
+        if: matrix.scons-flags == 'arch=arm64'
         run: Expand-Archive -Force angle/angle_arm64.zip ${{ github.workspace }}/
 
       - name: Download pre-built AccessKit
