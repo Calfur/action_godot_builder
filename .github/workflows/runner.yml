@@ -9,15 +9,15 @@ on:
       base-branch:
         description: 'Base branch to use for the builds'
         type: string
-        default: 'directional-light-projector-4.6.1'
+        default: 'directional-light-projector-4.7.0'
       tag:
         description: 'tag to use for downloading the repo'
         type: string
-        default: '4.6.1-stable'
+        default: '4.7-stable'
       tag_release:
         description: 'tag to use for releasing the build'
         type: string
-        default: '4.6.1-stable'
+        default: '4.7-stable'
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
         type: string
