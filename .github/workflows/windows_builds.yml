@@ -52,7 +52,7 @@ jobs:
             compiler-flags: use_mingw=yes use_llvm=yes
             lto: lto=thin
             toolchain: mingw-llvm
-            mingw-msystem: ''
+            mingw-msystem: CLANGARM64
             build-mono: false
             mono-flags: ''
 
@@ -82,7 +82,7 @@ jobs:
             compiler-flags: use_mingw=yes use_llvm=yes
             lto: lto=thin
             toolchain: mingw-llvm
-            mingw-msystem: ''
+            mingw-msystem: CLANGARM64
             build-mono: false
             mono-flags: ''
 
@@ -112,7 +112,7 @@ jobs:
             compiler-flags: use_mingw=yes use_llvm=yes
             lto: lto=thin
             toolchain: mingw-llvm
-            mingw-msystem: ''
+            mingw-msystem: CLANGARM64
             build-mono: false
             mono-flags: ''
 
@@ -152,7 +152,7 @@ jobs:
             compiler-flags: use_mingw=yes use_llvm=yes
             lto: lto=thin
             toolchain: mingw-llvm
-            mingw-msystem: ''
+            mingw-msystem: CLANGARM64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
@@ -162,7 +162,7 @@ jobs:
             compiler-flags: use_mingw=yes use_llvm=yes
             lto: lto=thin
             toolchain: mingw-llvm
-            mingw-msystem: ''
+            mingw-msystem: CLANGARM64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
@@ -172,7 +172,7 @@ jobs:
             compiler-flags: use_mingw=yes use_llvm=yes
             lto: lto=thin
             toolchain: mingw-llvm
-            mingw-msystem: ''
+            mingw-msystem: CLANGARM64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
@@ -208,6 +208,7 @@ jobs:
           mv llvm-mingw-* "$LLVM_MINGW_PREFIX"
           MINGW_PREFIX=$(echo "$LLVM_MINGW_PREFIX" | sed 's|\\|/|g')
           echo "MINGW_PREFIX=$MINGW_PREFIX" >> "$GITHUB_ENV"
+          echo "MSYSTEM=${{ matrix.mingw-msystem }}" >> "$GITHUB_ENV"
           echo "$MINGW_PREFIX/bin" >> "$GITHUB_PATH"
 
       - name: Setup MinGW-w64 GCC for Mono glue
@@ -281,6 +282,8 @@ jobs:
         env:
           MINGW_PREFIX: C:/msys64/mingw64
           MSYSTEM: MINGW64
+          # Godot checks MSVC before MSYS2; blank it so MinGW arch detection wins.
+          VCTOOLSINSTALLDIR: ''
 
       - name: Generate C# glue
         if: matrix.build-mono
@@ -296,6 +299,10 @@ jobs:
           scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ matrix.compiler-flags }} ${{ matrix.lto }} ${{ inputs.module_flags }} ${{ matrix.mono-flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
           platform: windows
           target: ${{ matrix.target }}
+        env:
+          MSYSTEM: ${{ matrix.mingw-msystem }}
+          # Godot checks MSVC before MSYS2; blank it so MinGW arch detection wins.
+          VCTOOLSINSTALLDIR: ''
 
       - name: Compilation (template)
         if: matrix.target != 'editor'
@@ -304,6 +311,10 @@ jobs:
           scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ matrix.compiler-flags }} ${{ matrix.lto }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
           platform: windows
           target: ${{ matrix.target }}
+        env:
+          MSYSTEM: ${{ matrix.mingw-msystem }}
+          # Godot checks MSVC before MSYS2; blank it so MinGW arch detection wins.
+          VCTOOLSINSTALLDIR: ''
 
       - name: Checkout builder repo (cache purge script)
         uses: actions/checkout@v6
