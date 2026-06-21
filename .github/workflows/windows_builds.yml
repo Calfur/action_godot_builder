@@ -5,9 +5,6 @@ on:
       base-branch:
         description: 'Base branch to use for the builds'
         type: string
-      lto:
-        description: 'LTO mode. Options: "none", "thin", "full"'
-        type: string
       repo:
         description: 'Repository to use for the build'
         type: string
@@ -28,12 +25,11 @@ env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
   SCONSFLAGS: verbose=yes warnings=extra strict_checks=yes debug_symbols=no ${{ inputs.module_flags }} use_static_cpp=yes
-  SCONS_CACHE_MSVC_CONFIG: true
+  LLVM_MINGW_PREFIX: ${{ github.workspace }}/llvm-mingw
   PYTHONIOENCODING: utf8
 
 jobs:
   build-windows:
-    # Windows 10 with latest image
     runs-on: windows-latest
     name: ${{ matrix.name }}
     strategy:
@@ -43,84 +39,140 @@ jobs:
           - name: Editor (target=editor, arch=x86_64)
             target: editor
             scons-flags: arch=x86_64
+            compiler-flags: use_mingw=yes
+            lto: lto=full
+            toolchain: mingw-gcc
+            mingw-msystem: MINGW64
             build-mono: false
             mono-flags: ''
 
           - name: Editor (target=editor, arch=arm64)
             target: editor
             scons-flags: arch=arm64
+            compiler-flags: use_mingw=yes use_llvm=yes
+            lto: lto=thin
+            toolchain: mingw-llvm
+            mingw-msystem: ''
             build-mono: false
             mono-flags: ''
 
           - name: Template (target=template_release, arch=x86_64)
             target: template_release
             scons-flags: arch=x86_64
+            compiler-flags: use_mingw=yes
+            lto: lto=full
+            toolchain: mingw-gcc
+            mingw-msystem: MINGW64
             build-mono: false
             mono-flags: ''
 
           - name: Template (target=template_release, arch=x86)
             target: template_release
             scons-flags: arch=x86
+            compiler-flags: use_mingw=yes
+            lto: lto=full
+            toolchain: mingw-gcc
+            mingw-msystem: MINGW32
             build-mono: false
             mono-flags: ''
 
           - name: Template (target=template_release, arch=arm64)
             target: template_release
             scons-flags: arch=arm64
+            compiler-flags: use_mingw=yes use_llvm=yes
+            lto: lto=thin
+            toolchain: mingw-llvm
+            mingw-msystem: ''
             build-mono: false
             mono-flags: ''
 
           - name: Template (target=template_debug, arch=x86_64)
             target: template_debug
             scons-flags: arch=x86_64
+            compiler-flags: use_mingw=yes
+            lto: lto=full
+            toolchain: mingw-gcc
+            mingw-msystem: MINGW64
             build-mono: false
             mono-flags: ''
 
           - name: Template (target=template_debug, arch=x86)
             target: template_debug
             scons-flags: arch=x86
+            compiler-flags: use_mingw=yes
+            lto: lto=full
+            toolchain: mingw-gcc
+            mingw-msystem: MINGW32
             build-mono: false
             mono-flags: ''
 
           - name: Template (target=template_debug, arch=arm64)
             target: template_debug
             scons-flags: arch=arm64
+            compiler-flags: use_mingw=yes use_llvm=yes
+            lto: lto=thin
+            toolchain: mingw-llvm
+            mingw-msystem: ''
             build-mono: false
             mono-flags: ''
 
           - name: Editor Mono (target=editor, arch=x86_64)
             target: editor
             scons-flags: arch=x86_64
+            compiler-flags: use_mingw=yes
+            lto: lto=full
+            toolchain: mingw-gcc
+            mingw-msystem: MINGW64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
           - name: Template Mono (target=template_release, arch=x86_64)
             target: template_release
             scons-flags: arch=x86_64
+            compiler-flags: use_mingw=yes
+            lto: lto=full
+            toolchain: mingw-gcc
+            mingw-msystem: MINGW64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
           - name: Template Mono (target=template_debug, arch=x86_64)
             target: template_debug
             scons-flags: arch=x86_64
+            compiler-flags: use_mingw=yes
+            lto: lto=full
+            toolchain: mingw-gcc
+            mingw-msystem: MINGW64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
           - name: Editor Mono (target=editor, arch=arm64)
             target: editor
             scons-flags: arch=arm64
+            compiler-flags: use_mingw=yes use_llvm=yes
+            lto: lto=thin
+            toolchain: mingw-llvm
+            mingw-msystem: ''
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
           - name: Template Mono (target=template_release, arch=arm64)
             target: template_release
             scons-flags: arch=arm64
+            compiler-flags: use_mingw=yes use_llvm=yes
+            lto: lto=thin
+            toolchain: mingw-llvm
+            mingw-msystem: ''
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
           - name: Template Mono (target=template_debug, arch=arm64)
             target: template_debug
             scons-flags: arch=arm64
+            compiler-flags: use_mingw=yes use_llvm=yes
+            lto: lto=thin
+            toolchain: mingw-llvm
+            mingw-msystem: ''
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
@@ -132,10 +184,42 @@ jobs:
           ref: ${{ inputs.tag }}
           submodules: recursive
 
+      - name: Setup MinGW-w64 GCC
+        if: matrix.toolchain == 'mingw-gcc'
+        shell: bash
+        run: |
+          if [ "${{ matrix.mingw-msystem }}" = "MINGW64" ]; then
+            PACKAGE=mingw-w64-x86_64-toolchain
+            echo "MINGW_PREFIX=C:/msys64/mingw64" >> "$GITHUB_ENV"
+          else
+            PACKAGE=mingw-w64-i686-toolchain
+            echo "MINGW_PREFIX=C:/msys64/mingw32" >> "$GITHUB_ENV"
+          fi
+          echo "MSYSTEM=${{ matrix.mingw-msystem }}" >> "$GITHUB_ENV"
+          C:/msys64/usr/bin/bash.exe -lc "pacman -Sy --noconfirm --needed $PACKAGE"
+
+      - name: Setup llvm-mingw
+        if: matrix.toolchain == 'mingw-llvm'
+        shell: bash
+        run: |
+          curl -L -o llvm-mingw.zip https://github.com/mstorsjo/llvm-mingw/releases/download/20241119/llvm-mingw-20241119-ucrt-x86_64.zip
+          unzip -q llvm-mingw.zip
+          rm llvm-mingw.zip
+          mv llvm-mingw-* "$LLVM_MINGW_PREFIX"
+          MINGW_PREFIX=$(echo "$LLVM_MINGW_PREFIX" | sed 's|\\|/|g')
+          echo "MINGW_PREFIX=$MINGW_PREFIX" >> "$GITHUB_ENV"
+          echo "$MINGW_PREFIX/bin" >> "$GITHUB_PATH"
+
+      - name: Setup MinGW-w64 GCC for Mono glue
+        if: matrix.build-mono && matrix.toolchain == 'mingw-llvm'
+        shell: bash
+        run: |
+          C:/msys64/usr/bin/bash.exe -lc "pacman -Sy --noconfirm --needed mingw-w64-x86_64-toolchain"
+
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
-          cache-name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
+          cache-name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ matrix.toolchain }}-${{ matrix.lto }}
         continue-on-error: true
 
       - name: Setup Python and SCons
@@ -191,9 +275,12 @@ jobs:
         if: matrix.build-mono
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: arch=x86_64 module_mono_enabled=yes mono_glue=no ${{ inputs.module_flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
+          scons-flags: arch=x86_64 use_mingw=yes lto=full module_mono_enabled=yes mono_glue=no ${{ inputs.module_flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
           platform: windows
           target: editor
+        env:
+          MINGW_PREFIX: C:/msys64/mingw64
+          MSYSTEM: MINGW64
 
       - name: Generate C# glue
         if: matrix.build-mono
@@ -206,7 +293,7 @@ jobs:
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }} ${{ matrix.mono-flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ matrix.compiler-flags }} ${{ matrix.lto }} ${{ inputs.module_flags }} ${{ matrix.mono-flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
           platform: windows
           target: ${{ matrix.target }}
 
@@ -214,7 +301,7 @@ jobs:
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ matrix.compiler-flags }} ${{ matrix.lto }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
           platform: windows
           target: ${{ matrix.target }}
 
@@ -228,7 +315,7 @@ jobs:
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
-          cache-name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
+          cache-name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ matrix.toolchain }}-${{ matrix.lto }}
           purge-cache-script: builder_repo/misc/scripts/purge_cache.py
         continue-on-error: true
 
@@ -241,10 +328,9 @@ jobs:
       - name: Prepare artifact
         run: |
           Remove-Item bin/build_deps -Recurse -Force -ErrorAction SilentlyContinue
-          Remove-Item bin/* -Include *.exp,*.lib,*.pdb -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
+          name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ matrix.toolchain }}-${{ matrix.lto }}
           path: bin

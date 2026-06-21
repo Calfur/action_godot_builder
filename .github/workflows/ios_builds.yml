@@ -5,9 +5,6 @@ on:
       base-branch:
         description: 'Base branch to use for the builds'
         type: string
-      lto:
-        description: 'LTO mode. Options: "none", "thin", "full"'
-        type: string
       repo:
         description: 'Repository to use for the build'
         type: string
@@ -26,6 +23,7 @@ env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
+  LTO: lto=none
   SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no strict_checks=yes ${{ inputs.module_flags }} use_static_cpp=yes
 
 jobs:
@@ -62,7 +60,7 @@ jobs:
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
-          cache-name: ios-${{ matrix.scons-mono-flags }}-${{ inputs.lto }}
+          cache-name: ios-${{ matrix.scons-mono-flags }}-${{ env.LTO }}
         continue-on-error: true
 
       - name: Setup Python and SCons
@@ -87,7 +85,7 @@ jobs:
         if: matrix.build-mono
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ inputs.lto }} ${{ inputs.module_flags }} module_mono_enabled=yes mono_glue=no
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ env.LTO }} ${{ inputs.module_flags }} module_mono_enabled=yes mono_glue=no
           platform: macos
           target: editor
 
@@ -98,21 +96,21 @@ jobs:
       - name: Compilation Debug (arm64)
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.scons-mono-flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ env.LTO }} ${{ inputs.template_module_flags }} ${{ matrix.scons-mono-flags }}
           platform: ios
           target: template_debug
 
       - name: Compilation Release (arm64)
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.scons-mono-flags }} generate_bundle=yes
+          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ env.LTO }} ${{ inputs.template_module_flags }} ${{ matrix.scons-mono-flags }} generate_bundle=yes
           platform: ios
           target: template_release
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
-          cache-name: ios-${{ matrix.scons-mono-flags }}-${{ inputs.lto }}
+          cache-name: ios-${{ matrix.scons-mono-flags }}-${{ env.LTO }}
           purge-cache-script: builder_repo/misc/scripts/purge_cache.py
         continue-on-error: true
 
@@ -130,5 +128,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ios-${{ matrix.scons-mono-flags }}-${{ inputs.lto }}
+          name: ios-${{ matrix.scons-mono-flags }}-${{ env.LTO }}
           path: bin

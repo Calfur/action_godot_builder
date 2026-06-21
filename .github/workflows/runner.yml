@@ -30,14 +30,6 @@ on:
         description: 'Repository to use for the release (leave empty for current repo)'
         type: string
         default: 'calfur/godot'
-      lto:
-        description: 'LTO mode. Options: "none", "thin", "full"'
-        type: choice
-        default: "lto=full"
-        options:
-          - "lto=none"
-          - "lto=thin"
-          - "lto=full"
 
 jobs:
   android-build:
@@ -47,7 +39,6 @@ jobs:
       repo: ${{ inputs.repo }}
       base-branch: ${{ inputs.base-branch }}
       tag: ${{ inputs.tag }}
-      lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets: inherit
@@ -59,7 +50,6 @@ jobs:
       repo: ${{ inputs.repo }}
       base-branch: ${{ inputs.base-branch }}
       tag: ${{ inputs.tag }}
-      lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets: inherit
@@ -71,7 +61,6 @@ jobs:
       repo: ${{ inputs.repo }}
       base-branch: ${{ inputs.base-branch }}
       tag: ${{ inputs.tag }}
-      lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets: inherit
@@ -83,7 +72,6 @@ jobs:
       repo: ${{ inputs.repo }}
       base-branch: ${{ inputs.base-branch }}
       tag: ${{ inputs.tag }}
-      lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets: inherit
@@ -95,7 +83,6 @@ jobs:
       repo: ${{ inputs.repo }}
       base-branch: ${{ inputs.base-branch }}
       tag: ${{ inputs.tag }}
-      lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets: inherit
@@ -107,7 +94,6 @@ jobs:
       repo: ${{ inputs.repo }}
       base-branch: ${{ inputs.base-branch }}
       tag: ${{ inputs.tag }}
-      lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets: inherit
@@ -131,7 +117,6 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       tag_release: ${{ inputs.tag_release }}
-      lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
       release_repo: ${{ inputs.release_repo }}

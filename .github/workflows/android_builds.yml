@@ -5,9 +5,6 @@ on:
       base-branch:
         description: 'Base branch to use for the builds'
         type: string
-      lto:
-        description: 'LTO mode. Options: "none", "thin", "full"'
-        type: string
       repo:
         description: 'Repository to use for the build'
         type: string
@@ -26,6 +23,7 @@ env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
+  LTO: lto=none
   SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no strict_checks=yes swappy=yes ${{ inputs.module_flags }} use_static_cpp=yes
 
 jobs:
@@ -78,7 +76,7 @@ jobs:
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
-          cache-name: android-${{ matrix.target }}-${{ inputs.lto }}${{ matrix.build-mono && '-mono' || '' }}
+          cache-name: android-${{ matrix.target }}-${{ env.LTO }}${{ matrix.build-mono && '-mono' || '' }}
         continue-on-error: true
 
       - name: Setup Python and SCons
@@ -124,28 +122,28 @@ jobs:
       - name: Compilation x86_64
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} arch=x86_64
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ env.LTO }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} arch=x86_64
           platform: android
           target: ${{ matrix.target }}
 
       - name: Compilation x86
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} arch=x86
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ env.LTO }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} arch=x86
           platform: android
           target: ${{ matrix.target }}
 
       - name: Compilation arm64
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} arch=arm64
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ env.LTO }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} arch=arm64
           platform: android
           target: ${{ matrix.target }}
 
       - name: Compilation arm32
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} arch=arm32 generate_apk=yes
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ env.LTO }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} arch=arm32 generate_apk=yes
           platform: android
           target: ${{ matrix.target }}
 
@@ -159,7 +157,7 @@ jobs:
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
-          cache-name: android-${{ matrix.target }}-${{ inputs.lto }}${{ matrix.build-mono && '-mono' || '' }}
+          cache-name: android-${{ matrix.target }}-${{ env.LTO }}${{ matrix.build-mono && '-mono' || '' }}
           purge-cache-script: builder_repo/misc/scripts/purge_cache.py
         continue-on-error: true
 
@@ -188,5 +186,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: android-${{ matrix.target }}-${{ inputs.lto }}${{ matrix.build-mono && '-mono' || '' }}
+          name: android-${{ matrix.target }}-${{ env.LTO }}${{ matrix.build-mono && '-mono' || '' }}
           path: bin
