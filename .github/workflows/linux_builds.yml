@@ -72,21 +72,18 @@ jobs:
             scons-flags: arch=x86_64
             scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
             build-mono: true
-            legacy-scons: false
 
           - name: Template Mono (target=template_release arch=x86_64)
             target: template_release
             scons-flags: arch=x86_64
             scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
             build-mono: true
-            legacy-scons: false
 
           - name: Template Mono (target=template_debug arch=x86_64)
             target: template_debug
             scons-flags: arch=x86_64
             scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
             build-mono: true
-            legacy-scons: false
 
     steps:
       - name: Checkout
