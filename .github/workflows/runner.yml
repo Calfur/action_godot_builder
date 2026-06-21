@@ -41,6 +41,7 @@ jobs:
     uses: ./.github/workflows/android_builds.yml
     with:
       repo: ${{ inputs.repo }}
+      base-branch: ${{ inputs.base-branch }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
@@ -52,6 +53,7 @@ jobs:
     uses: ./.github/workflows/ios_builds.yml
     with:
       repo: ${{ inputs.repo }}
+      base-branch: ${{ inputs.base-branch }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
@@ -63,6 +65,7 @@ jobs:
     uses: ./.github/workflows/linux_builds.yml
     with:
       repo: ${{ inputs.repo }}
+      base-branch: ${{ inputs.base-branch }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
@@ -74,6 +77,7 @@ jobs:
     uses: ./.github/workflows/macos_builds.yml
     with:
       repo: ${{ inputs.repo }}
+      base-branch: ${{ inputs.base-branch }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
@@ -85,6 +89,7 @@ jobs:
     uses: ./.github/workflows/windows_builds.yml
     with:
       repo: ${{ inputs.repo }}
+      base-branch: ${{ inputs.base-branch }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
@@ -96,6 +101,7 @@ jobs:
     uses: ./.github/workflows/web_builds.yml
     with:
       repo: ${{ inputs.repo }}
+      base-branch: ${{ inputs.base-branch }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
