@@ -124,6 +124,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mono-devel nuget
 
+      - name: Force remove preinstalled .NET SDKs
+        if: matrix.build-mono
+        run: |
+          sudo rm -rf /usr/share/dotnet/sdk/*
+
       - name: Setup .NET SDK
         if: matrix.build-mono
         uses: actions/setup-dotnet@v5
