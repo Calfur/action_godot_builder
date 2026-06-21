@@ -38,33 +38,33 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Template w/ threads (target=template_release, threads=yes, arch=wasm64)
+          - name: Template w/ threads (target=template_release, threads=yes, arch=wasm32)
             target: template_release
-            scons-flags: threads=yes arch=wasm64
+            scons-flags: threads=yes arch=wasm32
 
           - name: Template w/o threads (target=template_release, threads=no, arch=wasm32)
             target: template_release
             scons-flags: threads=no arch=wasm32
 
-          - name: Template w/ threads (target=template_debug, threads=yes, arch=wasm64)
+          - name: Template w/ threads (target=template_debug, threads=yes, arch=wasm32)
             target: template_debug
-            scons-flags: threads=yes arch=wasm64
+            scons-flags: threads=yes arch=wasm32
 
           - name: Template w/o threads (target=template_debug, threads=no, arch=wasm32)
             target: template_debug
             scons-flags: threads=no arch=wasm32
           
-          - name: Template w/ threads (target=template_release, threads=yes, arch=wasm64, dlink_enabled=yes)
+          - name: Template w/ threads (target=template_release, threads=yes, arch=wasm32, dlink_enabled=yes)
             target: template_release
-            scons-flags: threads=yes arch=wasm64 dlink_enabled=yes
+            scons-flags: threads=yes arch=wasm32 dlink_enabled=yes
 
           - name: Template w/o threads (target=template_release, threads=no, arch=wasm32, dlink_enabled=yes)
             target: template_release
             scons-flags: threads=no arch=wasm32 dlink_enabled=yes
 
-          - name: Template w/ threads (target=template_debug, threads=yes, arch=wasm64, dlink_enabled=yes)
+          - name: Template w/ threads (target=template_debug, threads=yes, arch=wasm32, dlink_enabled=yes)
             target: template_debug
-            scons-flags: threads=yes arch=wasm64 dlink_enabled=yes
+            scons-flags: threads=yes arch=wasm32 dlink_enabled=yes
 
           - name: Template w/o threads (target=template_debug, threads=no, arch=wasm32, dlink_enabled=yes)
             target: template_debug
