@@ -41,8 +41,9 @@ jobs:
       BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
       P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      APPLE_SIGNING_IDENTITY: ''
     name: 🚀 Create Release
-    runs-on: macos-latest
+    runs-on: macos-26
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -61,9 +62,6 @@ jobs:
       
       - name: Setup Python and SCons
         uses: ./.github/actions/godot-deps
-
-      - name: Select Xcode 26
-        run: sudo xcode-select -s /Applications/Xcode_26.0.1.app
 
       - name: Checkout builder scripts (Vulkan, etc.)
         uses: actions/checkout@v6

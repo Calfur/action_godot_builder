@@ -30,7 +30,7 @@ env:
 
 jobs:
   build-ios:
-    runs-on: macos-latest
+    runs-on: macos-26
     name: ${{ matrix.name }}
     strategy:
       fail-fast: false
@@ -77,7 +77,7 @@ jobs:
         if: matrix.build-mono
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '8.0.100'
 
       - name: Setup Vulkan SDK
         run: |
