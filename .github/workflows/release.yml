@@ -63,16 +63,9 @@ jobs:
       - name: Setup Python and SCons
         uses: ./.github/actions/godot-deps
 
-      - name: Checkout builder scripts (Vulkan, etc.)
-        uses: actions/checkout@v6
-        with:
-          repository: appsinacup/action_godot_builder
-          path: builder_repo
-          fetch-depth: 1
-
       - name: Setup Vulkan SDK
         run: |
-          sh builder_repo/install_vulkan_sdk_macos.sh
+          sh misc/scripts/install_vulkan_sdk_macos.sh
 
       # https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development
       - name: Install the Apple certificate

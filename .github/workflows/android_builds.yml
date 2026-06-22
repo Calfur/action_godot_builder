@@ -147,18 +147,11 @@ jobs:
           platform: android
           target: ${{ matrix.target }}
 
-      - name: Checkout builder repo (cache purge script)
-        uses: actions/checkout@v6
-        with:
-          repository: appsinacup/action_godot_builder
-          path: builder_repo
-          fetch-depth: 1
-
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
           cache-name: android-${{ matrix.target }}-${{ inputs.lto }}${{ matrix.build-mono && '-mono' || '' }}
-          purge-cache-script: builder_repo/misc/scripts/purge_cache.py
+          purge-cache-script: misc/scripts/purge_cache.py
         continue-on-error: true
 
       - name: Build .NET solutions
