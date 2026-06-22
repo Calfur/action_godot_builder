@@ -32,8 +32,87 @@ env:
   PYTHONIOENCODING: utf8
 
 jobs:
+  generate-mono-glue:
+    runs-on: ubuntu-22.04
+    name: Generate Mono glue
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ inputs.repo }}
+          ref: ${{ inputs.tag }}
+          submodules: recursive
+
+      - name: Setup dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwayland-bin mono-devel nuget
+
+      - name: Force remove preinstalled .NET SDKs
+        run: |
+          sudo rm -rf /usr/share/dotnet/sdk/*
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.100'
+
+      - name: Free disk space on runner
+        run: |
+          echo "Disk usage before:" && df -h
+          sudo rm -rf /usr/local/lib/android
+          echo "Disk usage after:" && df -h
+
+      - name: Download pre-built AccessKit
+        shell: sh
+        id: accesskit-sdk
+        run: |
+          if python ./misc/scripts/install_accesskit.py; then
+            echo "ACCESSKIT_ENABLED=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::AccessKit SDK installation failed, building without AccessKit support."
+            echo "ACCESSKIT_ENABLED=no" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Restore Godot build cache
+        uses: ./.github/actions/godot-cache-restore
+        with:
+          cache-name: windows-mono-glue-linux-editor-x86_64
+        continue-on-error: true
+
+      - name: Setup Python and SCons
+        uses: ./.github/actions/godot-deps
+
+      - name: Mono tools build (pre-glue)
+        run: |
+          if [ -n "${{ github.event.number }}" ]; then
+            export BUILD_NAME="gh-${{ github.event.number }}"
+          else
+            export BUILD_NAME="gh"
+          fi
+          scons platform=linuxbsd target=editor verbose=yes warnings=extra strict_checks=yes debug_symbols=no arch=x86_64 lto=none ${{ inputs.module_flags }} module_mono_enabled=yes mono_glue=no accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }} "cache_path=${{ github.workspace }}/.scons_cache/" redirect_build_objects=no
+          ls -l bin
+
+      - name: Generate C# glue
+        run: |
+          ./bin/godot.linuxbsd.editor.x86_64.mono --headless --generate-mono-glue ./modules/mono/glue
+
+      - name: Save Godot build cache
+        uses: ./.github/actions/godot-cache-save
+        with:
+          cache-name: windows-mono-glue-linux-editor-x86_64
+          purge-cache-script: misc/scripts/purge_cache.py
+        continue-on-error: true
+
+      - name: Upload Mono glue
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-mono-glue
+          path: modules/mono/glue
+
   build-windows:
-    runs-on: windows-latest
+    needs: generate-mono-glue
+    runs-on: ubuntu-22.04
     name: ${{ matrix.name }}
     strategy:
       fail-fast: false
@@ -45,7 +124,6 @@ jobs:
             compiler-flags: use_mingw=yes
             lto: lto=full
             toolchain: mingw-gcc
-            mingw-msystem: MINGW64
             build-mono: false
             mono-flags: ''
 
@@ -55,7 +133,6 @@ jobs:
             compiler-flags: use_mingw=yes use_llvm=yes
             lto: lto=thin
             toolchain: mingw-llvm
-            mingw-msystem: CLANGARM64
             build-mono: false
             mono-flags: ''
 
@@ -65,7 +142,6 @@ jobs:
             compiler-flags: use_mingw=yes
             lto: lto=full
             toolchain: mingw-gcc
-            mingw-msystem: MINGW64
             build-mono: false
             mono-flags: ''
 
@@ -75,7 +151,6 @@ jobs:
             compiler-flags: use_mingw=yes
             lto: lto=full
             toolchain: mingw-gcc
-            mingw-msystem: MINGW32
             build-mono: false
             mono-flags: ''
 
@@ -85,7 +160,6 @@ jobs:
             compiler-flags: use_mingw=yes use_llvm=yes
             lto: lto=thin
             toolchain: mingw-llvm
-            mingw-msystem: CLANGARM64
             build-mono: false
             mono-flags: ''
 
@@ -95,7 +169,6 @@ jobs:
             compiler-flags: use_mingw=yes
             lto: lto=full
             toolchain: mingw-gcc
-            mingw-msystem: MINGW64
             build-mono: false
             mono-flags: ''
 
@@ -105,7 +178,6 @@ jobs:
             compiler-flags: use_mingw=yes
             lto: lto=full
             toolchain: mingw-gcc
-            mingw-msystem: MINGW32
             build-mono: false
             mono-flags: ''
 
@@ -115,7 +187,6 @@ jobs:
             compiler-flags: use_mingw=yes use_llvm=yes
             lto: lto=thin
             toolchain: mingw-llvm
-            mingw-msystem: CLANGARM64
             build-mono: false
             mono-flags: ''
 
@@ -125,7 +196,6 @@ jobs:
             compiler-flags: use_mingw=yes
             lto: lto=full
             toolchain: mingw-gcc
-            mingw-msystem: MINGW64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
@@ -135,7 +205,6 @@ jobs:
             compiler-flags: use_mingw=yes
             lto: lto=full
             toolchain: mingw-gcc
-            mingw-msystem: MINGW64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
@@ -145,7 +214,6 @@ jobs:
             compiler-flags: use_mingw=yes
             lto: lto=full
             toolchain: mingw-gcc
-            mingw-msystem: MINGW64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
@@ -155,7 +223,6 @@ jobs:
             compiler-flags: use_mingw=yes use_llvm=yes
             lto: lto=thin
             toolchain: mingw-llvm
-            mingw-msystem: CLANGARM64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
@@ -165,7 +232,6 @@ jobs:
             compiler-flags: use_mingw=yes use_llvm=yes
             lto: lto=thin
             toolchain: mingw-llvm
-            mingw-msystem: CLANGARM64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
@@ -175,7 +241,6 @@ jobs:
             compiler-flags: use_mingw=yes use_llvm=yes
             lto: lto=thin
             toolchain: mingw-llvm
-            mingw-msystem: CLANGARM64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
@@ -189,36 +254,24 @@ jobs:
 
       - name: Setup MinGW-w64 GCC
         if: matrix.toolchain == 'mingw-gcc'
-        shell: bash
         run: |
-          if [ "${{ matrix.mingw-msystem }}" = "MINGW64" ]; then
-            PACKAGE=mingw-w64-x86_64-toolchain
-            echo "MINGW_PREFIX=C:/msys64/mingw64" >> "$GITHUB_ENV"
-          else
-            PACKAGE=mingw-w64-i686-toolchain
-            echo "MINGW_PREFIX=C:/msys64/mingw32" >> "$GITHUB_ENV"
-          fi
-          echo "MSYSTEM=${{ matrix.mingw-msystem }}" >> "$GITHUB_ENV"
-          C:/msys64/usr/bin/bash.exe -lc "pacman -Sy --noconfirm --needed $PACKAGE"
+          sudo apt-get update
+          sudo apt-get install -y binutils-mingw-w64 gcc-mingw-w64 g++-mingw-w64 mingw-w64-tools
 
       - name: Setup llvm-mingw
         if: matrix.toolchain == 'mingw-llvm'
-        shell: bash
         run: |
-          curl -L -o llvm-mingw.zip https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_MINGW_VERSION}/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-x86_64.zip
-          unzip -q llvm-mingw.zip
-          rm llvm-mingw.zip
+          curl -L -o llvm-mingw.tar.xz https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_MINGW_VERSION}/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-x86_64.tar.xz
+          tar -xf llvm-mingw.tar.xz
+          rm llvm-mingw.tar.xz
           mv llvm-mingw-* "$LLVM_MINGW_PREFIX"
-          MINGW_PREFIX=$(echo "$LLVM_MINGW_PREFIX" | sed 's|\\|/|g')
-          echo "MINGW_PREFIX=$MINGW_PREFIX" >> "$GITHUB_ENV"
-          echo "MSYSTEM=${{ matrix.mingw-msystem }}" >> "$GITHUB_ENV"
-          echo "$MINGW_PREFIX/bin" >> "$GITHUB_PATH"
+          echo "MINGW_PREFIX=$LLVM_MINGW_PREFIX" >> "$GITHUB_ENV"
+          echo "$LLVM_MINGW_PREFIX/bin" >> "$GITHUB_PATH"
 
-      - name: Setup MinGW-w64 GCC for Mono glue
-        if: matrix.build-mono && matrix.toolchain == 'mingw-llvm'
-        shell: bash
+      - name: Setup D3D12 MinGW helper tools
         run: |
-          C:/msys64/usr/bin/bash.exe -lc "pacman -Sy --noconfirm --needed mingw-w64-x86_64-toolchain"
+          sudo apt-get update
+          sudo apt-get install -y binutils-mingw-w64 mingw-w64-tools
 
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
@@ -229,11 +282,40 @@ jobs:
       - name: Setup Python and SCons
         uses: ./.github/actions/godot-deps
 
+# Mono
+      - name: Install Mono toolchain
+        if: matrix.build-mono
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mono-devel nuget
+
+      - name: Force remove preinstalled .NET SDKs
+        if: matrix.build-mono
+        run: |
+          sudo rm -rf /usr/share/dotnet/sdk/*
+
+      - name: Setup .NET SDK
+        if: matrix.build-mono
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.100'
+
+      - name: Download Mono glue
+        if: matrix.build-mono
+        uses: actions/download-artifact@v8
+        with:
+          name: windows-mono-glue
+          path: modules/mono/glue
+
       - name: Download Direct3D 12 SDK components
         shell: sh
         id: d3d12-sdk
         run: |
-          if python ./misc/scripts/install_d3d12_sdk_windows.py; then
+          D3D12_ARGS=
+          if [ -n "${MINGW_PREFIX:-}" ]; then
+            D3D12_ARGS="--mingw_prefix=${MINGW_PREFIX}"
+          fi
+          if python ./misc/scripts/install_d3d12_sdk_windows.py ${D3D12_ARGS}; then
             echo "D3D12_ENABLED=yes" >> "$GITHUB_OUTPUT"
           else
             echo "::warning::Windows: Direct3D 12 SDK installation failed, building without Direct3D 12 support."
@@ -268,68 +350,30 @@ jobs:
             echo "ACCESSKIT_ENABLED=no" >> "$GITHUB_OUTPUT"
           fi
 
-# Mono
-      - name: Setup .NET SDK
-        if: matrix.build-mono
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: '8.0.100'
-
-      - name: Mono tools build (pre-glue)
-        if: matrix.build-mono
-        shell: pwsh
-        env:
-          MINGW_PREFIX: C:/msys64/mingw64
-          MSYSTEM: MINGW64
-          VCTOOLSINSTALLDIR: ''
-        run: |
-          if ("${{ github.event.number }}" -ne "") {
-            $env:BUILD_NAME = "gh-${{ github.event.number }}"
-          } else {
-            $env:BUILD_NAME = "gh"
-          }
-          scons platform=windows target=editor arch=x86_64 use_mingw=yes lto=full module_mono_enabled=yes mono_glue=no ${{ inputs.module_flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }} "cache_path=${{ github.workspace }}/.scons_cache/" redirect_build_objects=no
-          Get-ChildItem bin
-
-      - name: Generate C# glue
-        if: matrix.build-mono
-        run: |
-          .\bin\godot.windows.editor.x86_64.mono.exe --headless --generate-mono-glue .\modules\mono\glue
-
 # Compilation
 
       - name: Compilation (editor)
         if: matrix.target == 'editor'
-        shell: pwsh
-        env:
-          MSYSTEM: ${{ matrix.mingw-msystem }}
-          VCTOOLSINSTALLDIR: ''
         run: |
-          if ("${{ github.event.number }}" -ne "") {
-            $env:BUILD_NAME = "gh-${{ github.event.number }}"
-          } else {
-            $env:BUILD_NAME = "gh"
-          }
+          if [ -n "${{ github.event.number }}" ]; then
+            export BUILD_NAME="gh-${{ github.event.number }}"
+          else
+            export BUILD_NAME="gh"
+          fi
           scons platform=windows target=${{ matrix.target }} ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ matrix.compiler-flags }} ${{ matrix.lto }} ${{ inputs.module_flags }} ${{ matrix.mono-flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }} "cache_path=${{ github.workspace }}/.scons_cache/" redirect_build_objects=no
-          Get-ChildItem bin
+          ls -l bin
 
       - name: Compilation (template)
         if: matrix.target != 'editor'
-        shell: pwsh
-        env:
-          MSYSTEM: ${{ matrix.mingw-msystem }}
-          VCTOOLSINSTALLDIR: ''
         run: |
-          if (Test-Path editor) {
-            Remove-Item editor -Recurse -Force
-          }
-          if ("${{ github.event.number }}" -ne "") {
-            $env:BUILD_NAME = "gh-${{ github.event.number }}"
-          } else {
-            $env:BUILD_NAME = "gh"
-          }
+          rm -rf editor
+          if [ -n "${{ github.event.number }}" ]; then
+            export BUILD_NAME="gh-${{ github.event.number }}"
+          else
+            export BUILD_NAME="gh"
+          fi
           scons platform=windows target=${{ matrix.target }} ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ matrix.compiler-flags }} ${{ matrix.lto }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }} "cache_path=${{ github.workspace }}/.scons_cache/" redirect_build_objects=no
-          Get-ChildItem bin
+          ls -l bin
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
@@ -346,7 +390,7 @@ jobs:
 
       - name: Prepare artifact
         run: |
-          Remove-Item bin/build_deps -Recurse -Force -ErrorAction SilentlyContinue
+          rm -rf bin/build_deps
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
