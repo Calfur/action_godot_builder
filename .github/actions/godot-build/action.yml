@@ -5,18 +5,16 @@ inputs:
   target:
     description: Build target (editor, template_release, template_debug).
     default: editor
-    type: choice
-    options: [editor, template_debug, template_release]
   platform:
     description: Target platform.
-    type: string
   scons-flags:
     description: Additional SCons flags.
-    type: string
   scons-cache:
     description: The SCons cache path.
     default: ${{ github.workspace }}/.scons_cache/
-    type: string
+  mingw-msystem:
+    description: MSYS2 environment to expose to SCons for MinGW builds.
+    default: ''
 
 runs:
   using: composite
@@ -36,6 +34,12 @@ runs:
           export BUILD_NAME="gh-${{ github.event.number }}"
         else
           export BUILD_NAME="gh"
+        fi
+
+        if [ -n "${{ inputs.mingw-msystem }}" ]; then
+          # Git Bash may start as MINGW64; set this here so Godot detects the requested MinGW arch.
+          export MSYSTEM="${{ inputs.mingw-msystem }}"
+          export VCTOOLSINSTALLDIR=
         fi
 
         scons platform=${{ inputs.platform }} target=${{ inputs.target }} ${{ inputs.scons-flags }} "cache_path=${{ inputs.scons-cache }}" redirect_build_objects=no

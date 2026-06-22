@@ -68,7 +68,7 @@ jobs:
 
           - name: Template (target=template_release, arch=x86)
             target: template_release
-            scons-flags: arch=x86
+            scons-flags: arch=x86_32
             compiler-flags: use_mingw=yes
             lto: lto=full
             toolchain: mingw-gcc
@@ -98,7 +98,7 @@ jobs:
 
           - name: Template (target=template_debug, arch=x86)
             target: template_debug
-            scons-flags: arch=x86
+            scons-flags: arch=x86_32
             compiler-flags: use_mingw=yes
             lto: lto=full
             toolchain: mingw-gcc
@@ -279,11 +279,9 @@ jobs:
           scons-flags: arch=x86_64 use_mingw=yes lto=full module_mono_enabled=yes mono_glue=no ${{ inputs.module_flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
           platform: windows
           target: editor
+          mingw-msystem: MINGW64
         env:
           MINGW_PREFIX: C:/msys64/mingw64
-          MSYSTEM: MINGW64
-          # Godot checks MSVC before MSYS2; blank it so MinGW arch detection wins.
-          VCTOOLSINSTALLDIR: ''
 
       - name: Generate C# glue
         if: matrix.build-mono
@@ -299,10 +297,7 @@ jobs:
           scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ matrix.compiler-flags }} ${{ matrix.lto }} ${{ inputs.module_flags }} ${{ matrix.mono-flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
           platform: windows
           target: ${{ matrix.target }}
-        env:
-          MSYSTEM: ${{ matrix.mingw-msystem }}
-          # Godot checks MSVC before MSYS2; blank it so MinGW arch detection wins.
-          VCTOOLSINSTALLDIR: ''
+          mingw-msystem: ${{ matrix.mingw-msystem }}
 
       - name: Compilation (template)
         if: matrix.target != 'editor'
@@ -311,10 +306,7 @@ jobs:
           scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ matrix.compiler-flags }} ${{ matrix.lto }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
           platform: windows
           target: ${{ matrix.target }}
-        env:
-          MSYSTEM: ${{ matrix.mingw-msystem }}
-          # Godot checks MSVC before MSYS2; blank it so MinGW arch detection wins.
-          VCTOOLSINSTALLDIR: ''
+          mingw-msystem: ${{ matrix.mingw-msystem }}
 
       - name: Checkout builder repo (cache purge script)
         uses: actions/checkout@v6
