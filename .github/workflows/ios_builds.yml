@@ -50,13 +50,6 @@ jobs:
           ref: ${{ inputs.tag }}
           submodules: recursive
 
-      - name: Checkout builder scripts (Vulkan SDK)
-        uses: actions/checkout@v6
-        with:
-          repository: appsinacup/action_godot_builder
-          path: builder_repo
-          fetch-depth: 1
-
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
@@ -79,7 +72,7 @@ jobs:
 
       - name: Setup Vulkan SDK
         run: |
-          sh builder_repo/install_vulkan_sdk_macos.sh
+          sh misc/scripts/install_vulkan_sdk_macos.sh
 
       - name: Mono tools build (pre-glue)
         if: matrix.build-mono
@@ -111,7 +104,7 @@ jobs:
         uses: ./.github/actions/godot-cache-save
         with:
           cache-name: ios-${{ matrix.scons-mono-flags }}-${{ env.LTO }}
-          purge-cache-script: builder_repo/misc/scripts/purge_cache.py
+          purge-cache-script: misc/scripts/purge_cache.py
         continue-on-error: true
 
       - name: Build .NET solutions

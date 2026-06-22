@@ -331,18 +331,11 @@ jobs:
           scons platform=windows target=${{ matrix.target }} ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ matrix.compiler-flags }} ${{ matrix.lto }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }} d3d12=${{ steps.d3d12-sdk.outputs.D3D12_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }} "cache_path=${{ github.workspace }}/.scons_cache/" redirect_build_objects=no
           Get-ChildItem bin
 
-      - name: Checkout builder repo (cache purge script)
-        uses: actions/checkout@v6
-        with:
-          repository: appsinacup/action_godot_builder
-          path: builder_repo
-          fetch-depth: 1
-
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
           cache-name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ matrix.toolchain }}-${{ matrix.lto }}
-          purge-cache-script: builder_repo/misc/scripts/purge_cache.py
+          purge-cache-script: misc/scripts/purge_cache.py
         continue-on-error: true
 
       - name: Build .NET solutions
