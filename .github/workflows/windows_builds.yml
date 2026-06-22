@@ -33,7 +33,7 @@ env:
 
 jobs:
   generate-mono-glue:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: Generate Mono glue
     steps:
       - name: Checkout
@@ -112,7 +112,7 @@ jobs:
 
   build-windows:
     needs: generate-mono-glue
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: ${{ matrix.name }}
     strategy:
       fail-fast: false
@@ -256,7 +256,19 @@ jobs:
         if: matrix.toolchain == 'mingw-gcc'
         run: |
           sudo apt-get update
-          sudo apt-get install -y binutils-mingw-w64 gcc-mingw-w64 g++-mingw-w64 mingw-w64-tools
+          sudo apt-get install -y \
+            binutils-mingw-w64 \
+            gcc-mingw-w64-i686-posix \
+            g++-mingw-w64-i686-posix \
+            gcc-mingw-w64-x86-64-posix \
+            g++-mingw-w64-x86-64-posix \
+            mingw-w64-tools
+          sudo update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
+          sudo update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+          sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+          sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+          i686-w64-mingw32-g++ --version
+          x86_64-w64-mingw32-g++ --version
 
       - name: Setup llvm-mingw
         if: matrix.toolchain == 'mingw-llvm'
