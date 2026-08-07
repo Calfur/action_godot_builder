@@ -154,7 +154,7 @@ jobs:
 
       - name: Mac Create Template Bundle
         run: |
-          cp -r misc/dist/macos_template.app ./bin
+          cp -r misc/dist/macos_template.app ./bin/macos_template.app
           mkdir -p bin/macos_template.app/Contents/MacOS
           cp bin/godot.macos.template_release.universal bin/macos_template.app/Contents/MacOS/godot_macos_release.universal
           cp bin/godot.macos.template_debug.universal bin/macos_template.app/Contents/MacOS/godot_macos_debug.universal
@@ -168,6 +168,7 @@ jobs:
             echo "Mono macOS template binaries not found, skipping."
             exit 0
           fi
+          rm -rf bin/macos_template.app
           cp -r misc/dist/macos_template.app ./bin/macos_template.app
           mkdir -p bin/macos_template.app/Contents/MacOS
           cp bin/godot.macos.template_release.mono.universal bin/macos_template.app/Contents/MacOS/godot_macos_release.universal
