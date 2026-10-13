@@ -51,8 +51,47 @@ jobs:
 
       - uses: actions/download-artifact@v8
         with:
-          path: bin
-          merge-multiple: true
+          path: downloaded-artifacts
+          merge-multiple: false
+
+      - name: Stage artifacts and matching Mono assemblies
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import shutil
+          import zipfile
+
+          artifacts = sorted(Path("downloaded-artifacts").iterdir())
+          if not artifacts:
+              raise RuntimeError("No build artifacts were downloaded")
+
+          editor_prefixes = ("linux-editor", "windows-editor", "macos-editor")
+          artifacts.sort(key=lambda artifact: artifact.name.startswith(editor_prefixes))
+          mono_editors = {
+              "linux_x86_64": ("linux-editor", "godot.linuxbsd.editor.x86_64.mono"),
+              "windows_x86_64": ("windows-editor", "godot.windows.editor.x86_64.mono.exe"),
+              "windows_arm64": ("windows-editor", "godot.windows.editor.arm64.llvm.mono.exe"),
+              "macos_universal": ("macos-editor", "godot.macos.editor.mono.universal"),
+          }
+          staged_editors = set()
+          for artifact in artifacts:
+              for package in sorted(artifact.rglob("*.nupkg")) + sorted(artifact.rglob("*.snupkg")):
+                  with zipfile.ZipFile(package) as archive:
+                      bad_entry = archive.testzip()
+                      if bad_entry is not None:
+                          raise RuntimeError(f"Corrupt package {package}: {bad_entry}")
+              shutil.copytree(artifact, "bin", dirs_exist_ok=True)
+              for platform, (prefix, binary) in mono_editors.items():
+                  if artifact.name.startswith(prefix) and (artifact / binary).is_file() and (artifact / "GodotSharp").is_dir():
+                      if platform in staged_editors:
+                          raise RuntimeError(f"Multiple Mono editor artifacts for {platform}")
+                      shutil.copytree(artifact / "GodotSharp", Path("mono-assemblies") / platform / "GodotSharp")
+                      staged_editors.add(platform)
+          missing = set(mono_editors) - staged_editors
+          if missing:
+              raise RuntimeError(f"Missing Mono editor artifacts: {sorted(missing)}")
+          print(f"Staged {len(artifacts)} artifacts and {len(staged_editors)} Mono editors")
+          PY
 
       - name: List downloaded bin
         run: ls -R bin
@@ -114,7 +153,7 @@ jobs:
             exit 0
           fi
           cp -r misc/dist/macos_tools.app ./bin/Godot_mono.app
-          cp -r bin/GodotSharp bin/Godot_mono.app/Contents/Resources
+          cp -r mono-assemblies/macos_universal/GodotSharp bin/Godot_mono.app/Contents/Resources
           mkdir -p bin/Godot_mono.app/Contents/MacOS
           cp bin/godot.macos.editor.mono.universal bin/Godot_mono.app/Contents/MacOS/Godot
           chmod +x bin/Godot_mono.app/Contents/MacOS/Godot
@@ -146,7 +185,7 @@ jobs:
             exit 0
           fi
           cp -r misc/dist/macos_tools.app ./bin/Godot_mono.app
-          cp -r bin/GodotSharp bin/Godot_mono.app/Contents/Resources
+          cp -r mono-assemblies/macos_universal/GodotSharp bin/Godot_mono.app/Contents/Resources
           mkdir -p bin/Godot_mono.app/Contents/MacOS
           cp bin/godot.macos.editor.mono.universal bin/Godot_mono.app/Contents/MacOS/Godot
           chmod +x bin/Godot_mono.app/Contents/MacOS/Godot
@@ -263,12 +302,12 @@ jobs:
           cd bin
           mkdir -p Godot_v${VERSION}_mono_win64
           cp Godot_v${VERSION}_mono_win64.exe Godot_v${VERSION}_mono_win64/
-          cp -R GodotSharp Godot_v${VERSION}_mono_win64/
+          cp -R ../mono-assemblies/windows_x86_64/GodotSharp Godot_v${VERSION}_mono_win64/
           zip -q -9 -r ../release/Godot_v${VERSION}_mono_win64.zip Godot_v${VERSION}_mono_win64
 
           mkdir -p Godot_v${VERSION}_mono_windows_arm64
           cp Godot_v${VERSION}_mono_windows_arm64.exe Godot_v${VERSION}_mono_windows_arm64/
-          cp -R GodotSharp Godot_v${VERSION}_mono_windows_arm64/
+          cp -R ../mono-assemblies/windows_arm64/GodotSharp Godot_v${VERSION}_mono_windows_arm64/
           zip -q -9 -r ../release/Godot_v${VERSION}_mono_windows_arm64.zip Godot_v${VERSION}_mono_windows_arm64
 
           zip -q -9 -r ../release/Godot_v${VERSION}_mono_macos.universal.zip Godot_mono.app
@@ -276,7 +315,7 @@ jobs:
           mkdir -p Godot_v${VERSION}_mono_linux_x86_64
           cp Godot_v${VERSION}_mono_linux.x86_64 Godot_v${VERSION}_mono_linux_x86_64/
           chmod +x Godot_v${VERSION}_mono_linux_x86_64/Godot_v${VERSION}_mono_linux.x86_64
-          cp -R GodotSharp Godot_v${VERSION}_mono_linux_x86_64/
+          cp -R ../mono-assemblies/linux_x86_64/GodotSharp Godot_v${VERSION}_mono_linux_x86_64/
           zip -q -9 -r ../release/Godot_v${VERSION}_mono_linux_x86_64.zip Godot_v${VERSION}_mono_linux_x86_64
 
           cd ..
